@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Website</title>  
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #222;
+        color: #fff;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background-color: #333;
+      }
+
+      .header h3 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .form-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 20px;
+        max-width: 500px;
+      }
+
+      .search-input {
+        flex-grow: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+        margin-right: 10px;
+      }
+
+      .search-button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #result {
+        margin-top: 20px;
+      }
+
+      .movie-card {
+        display: flex;
+        background-color: #333;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+      }
+
+      .movie-card img {
+        max-width: 200px;
+        height: auto;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .movie-details {
+        margin-left: 20px;
+        color: #fff;
+      }
+
+      .movie-details h2 {
+        margin-top: 0;
+        font-size: 24px;
+      }
+
+      .movie-details p {
+        margin: 5px 0;
+      }
+    </style>
+</head>
+<body>
+  <header class="header">
+    <h3>The IDIOT Movies</h3>
+  </header>
+
+  <div class="form-card">
+    <input type="text" id="searchInput" placeholder="Enter movie title..." class="search-input">
+    <button type="submit" id="btn1" class="search-button">Search</button>
+  </div>
+
+  <div class="form-card">
+    <input type="text" id="searchInput2" placeholder="Enter movie ID..." class="search-input">
+    <button type="submit" id="btn2" class="search-button">Search</button>
+  </div>
+
+  <div class="form-card">
+    <input type="text" id="searchInput3T" placeholder="Enter movie title..." class="search-input">
+    <input type="text" id="searchInput3Y" placeholder="Enter movie year..." class="search-input">
+    <button type="submit" id="btn3" class="search-button">Search</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    const resultDiv = document.getElementById('result');
+
+    const searchMovie = (title, year, rated, released, runTime, genre, director, writer, actors, plot, language, country, awards, poster) => {
+      const movieCard = document.createElement('div');
+      movieCard.classList.add('movie-card');
+
+      const posterImg = document.createElement('img');
+      posterImg.src = poster;
+      posterImg.alt = 'Movie Poster';
+
+      const movieDetails = document.createElement('div');
+      movieDetails.classList.add('movie-details');
+      movieDetails.innerHTML = `
+        <h2>${title}</h2> 
+        <p>Year: ${year}</p> 
+        <p>Rated: ${rated}</p> 
+        <p>Released: ${released}</p> 
+        <p>Runtime: ${runTime}</p> 
+        <p>Genre: ${genre}</p> 
+        <p>Director: ${director}</p> 
+        <p>Writer: ${writer}</p> 
+        <p>Actors: ${actors}</p> 
+        <p>Plot: ${plot}</p> 
+        <p>Language: ${language}</p> 
+        <p>Country: ${country}</p> 
+        <p>Awards: ${awards}</p>
+      `;
+
+      movieCard.appendChild(posterImg);
+      movieCard.appendChild(movieDetails);
+
+      resultDiv.innerHTML = '';
+      resultDiv.appendChild(movieCard);
+    }
+
+    // Searching Movie 
+    const apiKey = '2ebf973b';
+    let apiUrl = 'http://www.omdbapi.com/?apikey=[2ebf973b]&';
+
+    // Make an HTTP request to the API endpoint
+    const API = (url) => {
+      fetch(url)
+        .then(response => response.json())
+        .then(json => {
+          // Process the API response
+          if (json.Response === 'True') {
+            searchMovie(
+              json.Title, json.Year, json.Rated, json.Released, json.Runtime,
+              json.Genre, json.Director, json.Writer, json.Actors, json.Plot,
+              json.Language, json.Country, json.Awards, json.Poster
+            );
+          } else {
+            // Movie not found or error occurred
+            resultDiv.innerHTML = `<p>Movie not found</p>`;
+          }
+        })
+        .catch(error => {
+          // Handle any errors
+          console.log('Error occurred:', error);
+        });
+    };
+
+    // Function for the title search
+    const byTitle = () => { 
+      const searchTitle = document.getElementById('searchInput').value; 
+      const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(searchTitle)}`; 
+      API(url);
+    };
+
+    // Function for the id search
+    const byID = () => {
+      const searchId = document.getElementById('searchInput2').value;
+      const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${encodeURIComponent(searchId)}`;
+      API(url);
+    };
+
+    // Function for title and year search
+    const byTitleYear = () => {
+      const title = document.getElementById('searchInput3T').value;
+      const year = document.getElementById('searchInput3Y').value;
+      const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(title)}&y=${encodeURIComponent(year)}`;
+      API(url);
+    };
+
+    const btn1 = document.getElementById('btn1');
+    const btn2 = document.getElementById('btn2');
+    const btn3 = document.getElementById('btn3');
+
+    btn1.addEventListener('click', byTitle);
+    btn2.addEventListener('click', byID);
+    btn3.addEventListener('click', byTitleYear);
+  </script>
+</body>
+</html>
